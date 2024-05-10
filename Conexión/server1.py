@@ -22,8 +22,8 @@ def atiende_cliente(conn, addr):
             while not fin_msg:
                 recvd = conn.recv(BUFFER_SIZE)
                 if not recvd:
-                    raise ConnectionError()
                     break
+                    #raise ConnectionError()
                 datos += recvd
                 print ("[SERVIDOR ", addr, "] Recibidos ", len(recvd), " bytes")
                 if b'\n' in recvd:
@@ -35,12 +35,11 @@ def atiende_cliente(conn, addr):
             print ("[SERVIDOR ", addr, "] Enviando respuesta para el cliente")
             conn.send(datos)  # echo
             print ("[SERVIDOR ", addr, "] Respuesta enviada: \"" + msg + "\"")
-
-            print ("[SERVIDOR] Continuar? (S/N)")
-            cont = input()
-            if cont == "N":
-                cerrarConexion()
+            if msg=="logout":
+                print ("[SERVIDOR ", addr, "] Cliente desconectado")
                 return 0
+
+
         except BaseException as error:
             print ("[SERVIDOR ", addr, "] [ERROR] Socket error: ", error)
             break
@@ -50,6 +49,7 @@ print ("[SERVIDOR] Iniciando")
 
 print ("[SERVIDOR] Abriendo socket " + str(TCP_PORT) + " y escuchando")
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#s.close()
 s.bind((TCP_IP, TCP_PORT))
 s.listen(1)
 
@@ -61,6 +61,6 @@ while 1:
                               daemon=True)
     thread.start()
     print ("[SERVIDOR ", addr, "] Conexion con el cliente realizada. Direccion de conexion:", addr)
-
+    print("[SERVIDOR ", addr, "] Conectados:", threading.active_count())
 
 

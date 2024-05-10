@@ -15,6 +15,7 @@ if len(sys.argv) >= 3:
 print ("[CLIENTE] Iniciando")
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+active = True
 
 print ("[CLIENTE] Conectando")
 s.connect((TCP_IP, TCP_PORT))
@@ -23,28 +24,37 @@ print ("[CLIENTE] soy el cliente: \"" + str(s.getsockname()) + "\"")
 def enviarMensaje():
     msg = input("Mensaje a enviar: ")
     print ("[CLIENTE] Enviando datos: \"" + msg + "\"")
-    s.send((msg + '\n').encode('utf-8'))   
+    s.send((msg + '\n').encode('utf-8'))
+    
+    recibirDatos(msg)   
       
 
+def recibirDatos(sent):
+    print ("[CLIENTE] Recibiendo datos del SERVIDOR")
+    msg = ''
+    fin_msg = False
+    datos = bytearray()
+    while not fin_msg:
+        recvd = s.recv(BUFFER_SIZE)
+        datos += recvd
+        print ("[CLIENTE] Recibidos ", len(recvd), " bytes")
+        if b'\n' in recvd:
+            msg = datos.rstrip(b'\n').decode('utf-8')
+            fin_msg = True
+                
+    print ("[CLIENTE] Recibidos en total ", len(datos), " bytes")
+    print ("[CLIENTE] Datos recibidos en respuesta al CLIENTE: \"" + msg + "\"")
 
-print ("[CLIENTE] Recibiendo datos del SERVIDOR")
-msg = ''
-fin_msg = False
-datos = bytearray()
-while not fin_msg:
-	recvd = s.recv(BUFFER_SIZE)
-	datos += recvd
-	print ("[CLIENTE] Recibidos ", len(recvd), " bytes")
-	if b'\n' in recvd:
-		msg = datos.rstrip(b'\n').decode('utf-8')
-		fin_msg = True
-            
-print ("[CLIENTE] Recibidos en total ", len(datos), " bytes")
-print ("[CLIENTE] Datos recibidos en respuesta al CLIENTE: \"" + msg + "\"")
+    if msg == "logout":
+        print ("[CLIENTE] Cerrando conexion con el SERVIDOR")
+        s.close()
+        print("[CLIENTE] Hasta luego.")
+        return 0
+
+    if msg == sent:
+        print ("[CLIENTE] Conexión Establecida correctamente.")
+        enviarMensaje()
 
 
-if msg == MESSAGE:
-      print ("[CLIENTE] Conexión Establecida corrrectamente.")
-      print ("[CLIENTE] Cerrando conexion con el SERVIDOR")
-      s.close()
 
+enviarMensaje()
