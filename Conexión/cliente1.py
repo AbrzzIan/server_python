@@ -23,13 +23,16 @@ print ("[CLIENTE] soy el cliente: \"" + str(s.getsockname()) + "\"")
 
 def enviarMensaje():
     msg = input("Mensaje a enviar: ")
-    print ("[CLIENTE] Enviando datos: \"" + msg + "\"")
-    s.send((msg + '\n').encode('utf-8'))
+    next = True
+    if msg != "":
+        print ("[CLIENTE] Enviando datos: \"" + msg + "\"")
+        s.send((msg + '\n').encode('utf-8'))
+        next = recibirDatos()
     
-    recibirDatos(msg)   
+    if next: enviarMensaje()
       
 
-def recibirDatos(sent):
+def recibirDatos():
     print ("[CLIENTE] Recibiendo datos del SERVIDOR")
     msg = ''
     fin_msg = False
@@ -49,12 +52,9 @@ def recibirDatos(sent):
         print ("[CLIENTE] Cerrando conexion con el SERVIDOR")
         s.close()
         print("[CLIENTE] Hasta luego.")
-        return 0
+        return False
 
-    if msg == sent:
-        print ("[CLIENTE] Conexión Establecida correctamente.")
-        enviarMensaje()
-
-
+    return True
 
 enviarMensaje()
+
