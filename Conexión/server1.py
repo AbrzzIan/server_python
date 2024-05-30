@@ -1,13 +1,17 @@
 import threading
 import socket
+from dotenv import load_dotenv
+import os
 
-TCP_IP = ''
+
+load_dotenv()
+TCP_IP = os.environ.get("TCP_IP")
+
 TCP_PORT = 5664
 BUFFER_SIZE = 20  # default 1024 a menor mas velocidad
 
 
 
-## redirgir el puerto 5666 a la ip priv donde estes corriendo el server
 
 
 conn_list = []

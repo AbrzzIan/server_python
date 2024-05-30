@@ -2,7 +2,7 @@ import socket
 import threading
 
 
-TCP_IP = '127.0.0.1'
+TCP_IP = '186.130.7.151'
 TCP_PORT = 5664
 BUFFER_SIZE = 20
 
