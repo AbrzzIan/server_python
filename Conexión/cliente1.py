@@ -1,9 +1,12 @@
 import socket
 import threading
 
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 TCP_IP = '186.130.7.151'
-TCP_PORT = 5664
+TCP_PORT = int(os.environ.get("TCP_PORT"))
 BUFFER_SIZE = 20
 
 

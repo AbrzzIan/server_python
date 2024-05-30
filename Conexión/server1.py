@@ -6,7 +6,7 @@ import os
 
 load_dotenv()
 TCP_IP = os.environ.get("TCP_IP")
-TCP_PORT = TCP_IP = os.environ.get("TCP_PORT")
+TCP_PORT = int(os.environ.get("TCP_PORT"))
 
 BUFFER_SIZE = 20  # default 1024 a menor mas velocidad
 
