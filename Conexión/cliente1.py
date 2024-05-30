@@ -1,70 +1,67 @@
-#import sys
 import socket
 import threading
 
 
 TCP_IP = '127.0.0.1'
-TCP_PORT = 12345
+TCP_PORT = 5664
 BUFFER_SIZE = 20
 
 
 
-#if len(sys.argv) >= 2:
-#    TCP_IP = sys.argv[1]
-
-#if len(sys.argv) >= 3:
-#    MESSAGE = sys.argv[2]
-
 
 def main():
 
+    #Crea el socket y se conecta
     print ("[CLIENTE] Iniciando")
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     print ("[CLIENTE] Conectando")
-    s.connect((TCP_IP, TCP_PORT))
-    print ("[CLIENTE] soy el cliente: \"" + str(s.getsockname()) + "\"")
+    client_socket.connect((TCP_IP, TCP_PORT))
+    print ("[CLIENTE] Conectado satisfactoriamente.")
 
+    #Crea un thread para poder recibir mensajes sin tener que mandar algo anteriormente.
     receive_thread = threading.Thread(target=recibirDatos,
-                                args=[s],
+                                args=[client_socket],
                                 daemon=True)
-    
     receive_thread.start()
-    enviarMensaje(s)
+    enviarMensaje(client_socket)
 
+def enviarMensaje(client_socket):
 
-def enviarMensaje(s):
-    continuesend = True
-    while continuesend:
+    msg = ""
+    while msg != "logout":
         msg = input("Mensaje a enviar: ")
         if msg != "":
             print ("[CLIENTE] Enviando datos: \"" + msg + "\"")
-            s.send((msg + '\n').encode('utf-8'))
-            continuesend = recibirDatos(s)
+            #Se envía datos hasta que el mensaje sea logout.
+            client_socket.send((msg + '\n').encode('utf-8'))
+
+    print ("[CLIENTE] Cerrando conexion con el SERVIDOR")
+    client_socket.close()
+    print("[CLIENTE] Hasta luego.")
+
     
-      
 
-def recibirDatos(s):
-    print ("[CLIENTE] Recibiendo datos del SERVIDOR")
-    msg = ''
-    fin_msg = False
-    datos = bytearray()
-    while not fin_msg:
-        recvd = s.recv(BUFFER_SIZE)
-        datos += recvd
-        print ("[CLIENTE] Recibidos ", len(recvd), " bytes")
-        if b'\n' in recvd:
-            msg = datos.rstrip(b'\n').decode('utf-8')
-            fin_msg = True
-                
-    print ("[CLIENTE] Recibidos en total ", len(datos), " bytes")
-    print ("[CLIENTE] Datos recibidos en respuesta al CLIENTE: \"" + msg + "\"")
 
-    if msg == "logout" or not msg:
-        print ("[CLIENTE] Cerrando conexion con el SERVIDOR")
-        s.close()
-        print("[CLIENTE] Hasta luego.")
-        return False
-    return True
+def recibirDatos(client_socket):
+    while True:
+        msg = ''
+        fin_msg = False
+        datos = bytearray()
+        while not fin_msg:
+            recvd = client_socket.recv(BUFFER_SIZE)
+            datos += recvd
+            if b'\n' in recvd:
+                msg = datos.rstrip(b'\n').decode('utf-8')
+                fin_msg = True
+
+        if msg[0] == "#":
+            print ("[CLIENTE] Datos recibidos: \"" + msg[1:] + "\"")
+        else:
+            print ("[CLIENTE] Datos recibidos: \"" + msg + "\"")
+
+        if msg == "logout":
+            break
+
 if __name__ == "__main__":
     main()
